@@ -1,19 +1,18 @@
-const TestServer = require('./utils/helpers.js')
+const TestServer = require('./utils/helpers.js');
 
 const testServer = new TestServer();
 
 testServer.get('/', (req, res) => {
-	res.write('Home')
-	res.end();
-})
+	res.render('./views/index.html');
+});
 testServer.get('/login', (req, res) => {
-	res.write('Login')
-	res.end();
-})
+	res.render('./views/login.html');
+});
 testServer.post('/login', (req, res) => {
-	console.log(req);
-})
+	console.log(req.body);
+	res.redirect('/');
+});
 
 testServer.start(3000).then(() => {
-	console.log(`Server started on PORT: 3000`)
-})
+	console.log(`Server started on PORT: 3000`);
+});
