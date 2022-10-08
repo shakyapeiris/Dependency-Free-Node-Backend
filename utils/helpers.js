@@ -54,7 +54,7 @@ class Server {
 
 				req.on('end', () => {
 					if (req.method === 'POST') {
-						const child = fork('./utils/forks/getData.js');
+						const child = fork('./utils/subProcesses/getData.js');
 						child.send('start__data__' + body);
 
 						child.on('message', (data) => {
