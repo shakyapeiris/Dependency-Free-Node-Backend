@@ -10,6 +10,7 @@ testServer.get('/login', (req, res) => {
 });
 testServer.get('/item/:index', (req, res) => {
 	console.log(req.params);
+	console.log(req.query);
 });
 testServer.post('/login', (req, res) => {
 	console.log(req.body);

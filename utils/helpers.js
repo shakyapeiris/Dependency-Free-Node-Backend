@@ -43,7 +43,10 @@ class Server {
 	start(port) {
 		return new Promise((resolve, reject) => {
 			http.createServer((req, res) => {
-				let endpoint = req.url;
+				let endpoint;
+				if (req.url.includes('?')) {
+					endpoint = req.url.split('?')[0];
+				} else endpoint = req.url;
 				if (endpoint[endpoint.length - 1] != '/') endpoint += '/';
 				let path = endpoint.split('/');
 				let newpath = path.slice(1, path.length);
@@ -72,6 +75,17 @@ class Server {
 							};
 						}
 					}
+					let query = {};
+					const splittedQuery = req.url.split('?');
+					if (splittedQuery.length == 2) {
+						const queryParams = splittedQuery[1].split('&');
+
+						queryParams.forEach((q) => {
+							const splitted = q.split('=');
+							query = { ...query, [splitted[0]]: splitted[1] };
+						});
+					}
+
 					const render = (path) => {
 						rendeHTML(path).then((html) => {
 							res.write(html);
@@ -105,6 +119,7 @@ class Server {
 								};
 								let newReq = {
 									params,
+									query,
 									...req,
 									body:
 										req.method === 'POST'
@@ -127,6 +142,7 @@ class Server {
 							let newReq = {
 								...req,
 								params,
+								query,
 							};
 							if (middleware) {
 								middleware.callback(newReq, newRes);
