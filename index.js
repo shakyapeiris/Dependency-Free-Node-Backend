@@ -8,6 +8,9 @@ testServer.get('/', (req, res) => {
 testServer.get('/login', (req, res) => {
 	res.render('./views/login.utl');
 });
+testServer.get('/item/new', (req, res) => {
+	res.render('./views/addItem.utl');
+});
 testServer.get('/item/:index', (req, res) => {
 	res.render('./views/item.utl', { id: req.params.index });
 });

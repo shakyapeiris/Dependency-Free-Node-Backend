@@ -40,12 +40,26 @@ class Router {
 			head.wildCard = newObj;
 			this.constructPath(path, currIndex + 1, head.wildCard);
 		} else {
-			head.addChildren(newObj);
-			this.constructPath(
-				path,
-				currIndex + 1,
-				head.children[head.children.length - 1]
+			const childrenAvailable = head.children.find(
+				(c) => c.path === path[currIndex]
 			);
+			if (childrenAvailable) {
+				const childrenIndex = head.children.findIndex(
+					(c) => c.path === path[currIndex]
+				);
+				this.constructPath(
+					path,
+					currIndex + 1,
+					head.children[childrenIndex]
+				);
+			} else {
+				head.addChildren(newObj);
+				this.constructPath(
+					path,
+					currIndex + 1,
+					head.children[head.children.length - 1]
+				);
+			}
 		}
 	}
 }
