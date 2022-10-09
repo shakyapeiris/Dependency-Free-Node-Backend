@@ -8,6 +8,9 @@ testServer.get('/', (req, res) => {
 testServer.get('/login', (req, res) => {
 	res.render('./views/login.html');
 });
+testServer.get('/item/:index', (req, res) => {
+	console.log(req.params);
+});
 testServer.post('/login', (req, res) => {
 	console.log(req.body);
 	res.redirect('/');
