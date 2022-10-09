@@ -3,14 +3,13 @@ const TestServer = require('./utils/helpers.js');
 const testServer = new TestServer();
 
 testServer.get('/', (req, res) => {
-	res.render('./views/index.html');
+	res.render('./views/index.utl');
 });
 testServer.get('/login', (req, res) => {
-	res.render('./views/login.html');
+	res.render('./views/login.utl');
 });
 testServer.get('/item/:index', (req, res) => {
-	console.log(req.params);
-	console.log(req.query);
+	res.render('./views/item.utl', { id: req.params.index });
 });
 testServer.post('/login', (req, res) => {
 	console.log(req.body);

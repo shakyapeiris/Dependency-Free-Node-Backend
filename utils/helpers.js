@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const { fork } = require('child_process');
 const Router = require('./router');
+const templateRenderer = require('./template');
 
 const routerHead = new Router();
 
@@ -86,8 +87,11 @@ class Server {
 						});
 					}
 
-					const render = (path) => {
+					const render = (path, data) => {
 						rendeHTML(path).then((html) => {
+							if (data) {
+								html = templateRenderer(html, data);
+							}
 							res.write(html);
 							res.end();
 						});
