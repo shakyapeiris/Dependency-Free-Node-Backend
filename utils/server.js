@@ -16,44 +16,84 @@ const rendeHTML = (location) => {
 	});
 };
 
+const pathToArray = (endpoint) => {
+	// If endpoint doesn't has '/' at end
+	// add '/'
+	// i.e. /someroute/a => /someroute/a/
+	if (endpoint[endpoint.length - 1] != '/') endpoint += '/';
+
+	// Convert paths to an array
+	let path = endpoint.split('/');
+
+	// Ignore the first item
+	// i.e. /someroute/a/s.plit('/') => ['', 'someroute', 'a', '']
+	// ['', 'someroute', 'a', ''] => ['someroute', 'a', '']
+	return path.slice(1, path.length);
+};
+
 class Server {
+	// Construct class
 	constructor() {
 		this.endpoints = [];
 	}
+
+	// GET methods
 	get(endpoint, callback) {
+		// Check for validity of the path
 		if (endpoint[0] != '/')
 			throw new Error(`${endpoint} is an invalid path`);
-		if (endpoint[endpoint.length - 1] != '/') endpoint += '/';
-		let path = endpoint.split('/');
-		let newpath = path.slice(1, path.length);
+
+		let newpath = pathToArray(endpoint);
+
+		// Configure endpoint in the tree
 		Router.constructPath(newpath, 0, routerHead);
+
+		// Add endpoint to endpoints array
 		this.endpoints.push({ path: newpath, callback, method: 'get' });
 	}
+
+	// POST method
 	post(endpoint, callback) {
+		// Check for validity of the path
 		if (endpoint[0] != '/')
 			throw new Error(`${endpoint} is an invalid path`);
-		if (endpoint[endpoint.length - 1] != '/') endpoint += '/';
-		let path = endpoint.split('/');
-		let newpath = path.slice(1, path.length);
+
+		let newpath = pathToArray(endpoint);
+
+		// Configure endpoint in the tree
 		Router.constructPath(newpath, 0, routerHead);
+
+		// Add endpoint to endpoints array
 		this.endpoints.push({ path: newpath, callback, method: 'post' });
 	}
+
+	// return all endpoints configured
 	getEndpoints() {
 		return this.endpoints;
 	}
+
+	// start the server
 	start(port) {
 		return new Promise((resolve, reject) => {
 			http.createServer((req, res) => {
 				let endpoint;
+
+				// Check for query parameters
 				if (req.url.includes('?')) {
 					endpoint = req.url.split('?')[0];
 				} else endpoint = req.url;
-				if (endpoint[endpoint.length - 1] != '/') endpoint += '/';
-				let path = endpoint.split('/');
-				let newpath = path.slice(1, path.length);
+
+				let newpath = pathToArray(endpoint);
+
+				// Construct the structure of the requested endpoint
+				// W/ path parameters
 				const constructedPath = Router.getPath(newpath, 0, routerHead);
+
+				// Check whether the requested endpoint is available
 				if (constructedPath) {
 					const endPoints = this.endpoints;
+
+					// Find the middlware of the requested endpoint
 					const middleware = endPoints.find((e) => {
 						if (e.path.length != constructedPath.length)
 							return false;
@@ -64,6 +104,9 @@ class Server {
 						}
 						return isSame && req.method.toLowerCase() === e.method;
 					});
+
+					// Find path parameters by comparing the
+					// constructed path and the requested endpoint
 					let params = {};
 					for (let i = 0; i < constructedPath.length; i++) {
 						if (newpath[i] !== constructedPath[i]) {
@@ -76,6 +119,8 @@ class Server {
 							};
 						}
 					}
+
+					// Find query parameters
 					let query = {};
 					const splittedQuery = req.url.split('?');
 					if (splittedQuery.length == 2) {
@@ -87,6 +132,7 @@ class Server {
 						});
 					}
 
+					// Render function for rendering html
 					const render = (path, data) => {
 						rendeHTML(path).then((html) => {
 							if (data) {
@@ -96,6 +142,8 @@ class Server {
 							res.end();
 						});
 					};
+
+					// Redirect function
 					const redirect = (path) => {
 						if (!path) throw new Error('Please enter a valid path');
 						if (path[0] != '/') path = '/' + path;
@@ -103,6 +151,8 @@ class Server {
 							Location: path,
 						}).end();
 					};
+
+					// Decode data chunks to strings
 					let body = '';
 					req.on('data', (data) => {
 						body += data.toString();
@@ -110,6 +160,7 @@ class Server {
 
 					req.on('end', () => {
 						if (req.method === 'POST') {
+							// Change data string to a body object
 							const child = fork(
 								'./utils/subProcesses/getData.js'
 							);

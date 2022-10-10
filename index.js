@@ -1,4 +1,4 @@
-const TestServer = require('./utils/helpers.js');
+const TestServer = require('./utils/server.js');
 
 const testServer = new TestServer();
 
